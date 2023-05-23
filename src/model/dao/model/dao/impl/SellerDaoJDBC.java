@@ -147,10 +147,10 @@ public class SellerDaoJDBC implements model.dao.SellerDao {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            statement = connection.prepareStatement("SELECT seller.*,department.Name as DepName " +
+            statement = connection.prepareStatement("SELECT seller.*, department.Name AS DepName " +
                     "FROM seller INNER JOIN department " +
                     "ON seller.DepartmentId = department.Id " +
-                    "ORDER BY Name");
+                    "ORDER BY seller.Name");
 
             resultSet = statement.executeQuery();
 
@@ -158,15 +158,17 @@ public class SellerDaoJDBC implements model.dao.SellerDao {
             Map<Integer, Department> map = new HashMap<>();
 
             while (resultSet.next()) {
+                int departmentId = resultSet.getInt("Department.Id");
 
-                Department department0 = map.get(resultSet.getInt("DepartmentId"));
+                Department department = map.get(departmentId);
 
-                if (department0 == null) {
-                    department0 = instantiateDepartment(resultSet);
-                    map.put(resultSet.getInt("DepartmentId"), department0);
+                if (department == null) {
+                    department = instantiateDepartment(resultSet); // Define or adjust instantiateDepartment method
+                    map.put(departmentId, department);
                 }
-                Seller obj = instantiateSeller(resultSet, department0);
-                list.add(obj);
+
+                Seller seller = instantiateSeller(resultSet, department); // Define or adjust instantiateSeller method
+                list.add(seller);
             }
             return list;
         } catch (SQLException e) {
